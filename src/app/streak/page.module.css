@@ -1,0 +1,166 @@
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px;
+  padding-bottom: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.monthTitle {
+  font-size: 2rem;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.controls {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+/* The Winding Path Grid */
+.pathGrid {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 700px;
+  gap: 0;
+  position: relative;
+}
+
+.row {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  padding: 30px 0;
+  position: relative;
+}
+
+.row:nth-child(even) {
+  flex-direction: row-reverse;
+}
+
+.nodeWrapper {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+/* Horizontal connectors */
+.row::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 40px;
+  right: 40px;
+  height: 6px;
+  background: #ebd4f0;
+  z-index: 1;
+  transform: translateY(-50%);
+}
+
+/* Vertical transition connectors */
+.row:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  bottom: -30px;
+  width: 6px;
+  height: 60px;
+  background: #ebd4f0;
+  z-index: 1;
+}
+
+.row:nth-child(odd):not(:last-child)::before {
+  right: 40px;
+}
+
+.row:nth-child(even):not(:last-child)::before {
+  left: 40px;
+}
+
+.node {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: white;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  overflow: visible; /* Allow aura to show */
+  border: 4px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+
+.node.today {
+  border-color: var(--soft-teal);
+  box-shadow: 0 0 15px rgba(149, 125, 173, 0.4);
+}
+
+.todayIndicator {
+  position: absolute;
+  bottom: -35px;
+  background: var(--soft-teal);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.node.completed {
+  background: var(--lemon-yellow);
+  border-color: var(--primary-purple);
+}
+
+.node.missed {
+  background: #f0f0f0;
+  opacity: 0.8;
+}
+
+.node:hover {
+  transform: scale(1.15);
+  z-index: 10;
+}
+
+.dayLabel {
+  position: absolute;
+  top: -25px;
+  font-size: 0.85rem;
+  color: var(--text-light);
+  font-weight: 700;
+}
+
+/* S-Shape Logic:
+   We need to visually connect them. 
+   For now, placing them in a grid.
+   To make it look like a path, we usually snake the index assignment or CSS order.
+   But simpler is to just render them in order and let the user imagine the path or use SVG lines later.
+   User asked for "link by a line". 
+*/
+
+.connector {
+  position: absolute;
+  height: 4px;
+  background: #ebd4f0;
+  z-index: 1;
+  transform-origin: left center;
+}

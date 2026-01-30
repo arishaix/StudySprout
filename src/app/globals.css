@@ -1,27 +1,50 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-cream: #FDFBF7;
+  --bg-gradient-center: #FFFFFF;
+  --text-main: #4A4A4A;
+  --text-light: #8A8A8A;
+  
+  /* Accents */
+  --primary-purple: #E0BBE4;
+  --soft-teal: #957DAD;
+  --peachy-pink: #FEC8D8;
+  --lemon-yellow: #FFFCCB;
+  
+  /* UI */
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  --shadow-bounce: 0 8px 20px -5px rgba(149, 125, 173, 0.2);
+  
+  --radius-lg: 24px;
+  --radius-xl: 32px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body.dark {
+  --bg-cream: #1A1A1A;
+  --bg-gradient-center: #2D2A32;
+  --text-main: #FDFBF7;
+  --text-light: #A0A0A0;
+  
+  --glass-bg: rgba(45, 42, 50, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --shadow-bounce: 0 8px 30px -5px rgba(0, 0, 0, 0.6);
+  
+  /* Slightly more muted accents for dark mode */
+  --primary-purple: #baa6db;
+  --soft-teal: #7A6A8D;
+  --peachy-pink: #d1a7b1;
+  --lemon-yellow: #d9d6a3;
 }
 
-html,
 body {
-  max-width: 100vw;
+  background: radial-gradient(circle at 50% 50%, var(--bg-gradient-center) 0%, var(--bg-cream) 100%);
+  background-attachment: fixed;
+  color: var(--text-main);
   overflow-x: hidden;
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  padding-top: 120px; /* Space for the floating navbar */
+  transition: background 0.3s, color 0.3s;
 }
 
 * {
@@ -33,10 +56,4 @@ body {
 a {
   color: inherit;
   text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
 }

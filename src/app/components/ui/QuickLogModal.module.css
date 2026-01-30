@@ -1,0 +1,241 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 0.5rem;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+.activityGrid, .presetGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.activityChip, .presetChip {
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.activityChip:hover, .presetChip:hover {
+  background: var(--glass-border);
+  transform: translateY(-1px);
+}
+
+.activityChip.active, .presetChip.active {
+  background: var(--primary-purple);
+  color: white;
+  border-color: var(--primary-purple);
+  box-shadow: 0 4px 12px rgba(167, 139, 250, 0.3);
+}
+
+.textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 1rem;
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--text-primary);
+  font-family: inherit;
+  resize: vertical;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--primary-purple);
+}
+
+.twitterToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: rgba(29, 161, 242, 0.05);
+  border: 1px dashed rgba(29, 161, 242, 0.3);
+  border-radius: 16px;
+}
+
+.toggleInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sparkleIcon {
+  color: #1DA1F2;
+}
+
+.toggleTitle {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  margin-bottom: 0.1rem;
+}
+
+.toggleDesc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.toggleSwitch {
+  width: 44px;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  border: none;
+  transition: background 0.3s;
+}
+
+.toggleSwitch.on {
+  background: #1DA1F2;
+}
+
+.switchHandle {
+  width: 20px;
+  height: 200%; /* Wait, height should be fixed */
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.toggleSwitch.on .switchHandle {
+  transform: translateX(20px);
+}
+
+.tweetPreviewWrapper {
+  overflow: hidden;
+}
+
+.tweetPreview {
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background: white;
+  border: 1px solid #E1E8ED;
+  border-radius: 16px;
+  color: #14171A;
+}
+
+:global(.dark) .tweetPreview {
+  background: #15202B;
+  border-color: #38444D;
+  color: white;
+}
+
+.tweetHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #1DA1F2;
+}
+
+.tweetText {
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+  line-height: 1.4;
+}
+
+.processingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  text-align: center;
+  gap: 1rem;
+}
+
+.aiIcon {
+  margin-bottom: 1rem;
+}
+
+.reviewState {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.aiResponse {
+  background: rgba(167, 139, 250, 0.1);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  padding: 1.5rem;
+  border-radius: 20px;
+  position: relative;
+}
+
+.aiBadge {
+  position: absolute;
+  top: -10px;
+  left: 20px;
+  background: var(--primary-purple);
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  box-shadow: 0 4px 10px rgba(167, 139, 250, 0.3);
+}
+
+.aiText {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+}
+
+.tweetHint {
+  margin-top: 0.75rem;
+  font-size: 0.7rem;
+  color: #657786;
+  font-style: italic;
+}
+
+.footer {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.cancelBtn {
+  flex: 1;
+}
+
+.logBtn {
+  flex: 2;
+}

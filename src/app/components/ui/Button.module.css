@@ -1,0 +1,74 @@
+.button {
+  background: var(--primary-purple);
+  color: white; /* White text looks better on the purple theme */
+  border: none;
+  padding: 12px 32px;
+  border-radius: 50px; /* Pill shape */
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #baa6db; /* Hard shadow for purple 'pop' */
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.medium {
+  padding: 12px 32px;
+  font-size: 1.1rem;
+}
+
+.small {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  border-radius: 12px;
+}
+
+.button:hover {
+  filter: brightness(1.05);
+}
+
+.button:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #ebb2c1; /* Pressed state */
+}
+
+/* Variant: Secondary */
+.secondary {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-main);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--glass-border);
+}
+
+:global(.dark) .secondary {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+.secondary:active {
+  box-shadow: 0 0 0 transparent;
+}
+
+/* Variant: Ghost (Text only) */
+.ghost {
+  background: transparent;
+  color: var(--text-light);
+  box-shadow: none;
+  padding: 8px 16px;
+}
+.ghost:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+:global(.dark) .ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ghost:active {
+  transform: scale(0.95);
+  box-shadow: none;
+}

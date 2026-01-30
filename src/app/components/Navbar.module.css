@@ -1,0 +1,64 @@
+.navbarWrapper {
+  position: fixed;
+  top: 24px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 100;
+  pointer-events: none; /* Let clicks pass through outside the nav */
+}
+
+.navbar {
+  pointer-events: auto;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 12px 32px;
+  border-radius: 50px;
+  border: 2px solid var(--glass-border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-light);
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+
+.navItem:hover, .active {
+  color: var(--soft-teal);
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.navItem:hover .iconWrapper {
+  background: rgba(149, 125, 173, 0.1);
+  transform: scale(1.1);
+}
+
+.active .iconWrapper {
+  background: var(--primary-purple);
+  color: white;
+  box-shadow: 0 4px 12px rgba(224, 187, 228, 0.5);
+  transform: translateY(-2px) scale(1.1);
+}
+
+.active {
+  color: var(--primary-purple);
+}
