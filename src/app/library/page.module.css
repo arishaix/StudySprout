@@ -1,0 +1,268 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  min-height: 100vh;
+}
+
+.header {
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.headerTop {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-light);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.backBtn:hover {
+  color: var(--primary-purple);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dayCard {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.dayHeader {
+  background: rgba(224, 187, 228, 0.1);
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(224, 187, 228, 0.2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dayHeader:hover {
+  background: rgba(224, 187, 228, 0.2);
+}
+
+.dayHeader.expanded {
+  background: rgba(167, 139, 250, 0.1);
+  border-bottom-color: rgba(167, 139, 250, 0.2);
+}
+
+.dayTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-main);
+}
+
+.calendarIcon {
+  color: var(--primary-purple);
+}
+
+.dayTitle h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.dayTotal {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary-purple);
+  background: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(167, 139, 250, 0.2);
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chevron {
+  color: var(--text-light);
+  transition: transform 0.3s ease;
+}
+
+.chevron.rotated {
+  transform: rotate(180deg);
+  color: var(--primary-purple);
+}
+
+.logListWrapper {
+  overflow: hidden;
+}
+
+.logList {
+  display: flex;
+  flex-direction: column;
+}
+
+.logItem {
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  transition: background 0.2s;
+}
+
+.logItem:last-child {
+  border-bottom: none;
+}
+
+.logItem:hover {
+  background: rgba(224, 187, 228, 0.02);
+}
+
+.logMain {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.activityLabel {
+  display: inline-block;
+  font-weight: 700;
+  color: var(--text-main);
+  font-size: 1rem;
+}
+
+.logDuration {
+  font-size: 0.85rem;
+  color: var(--primary-purple);
+  font-weight: 600;
+}
+
+.logNotesSnippet {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  margin: 4px 0 0 0;
+  line-height: 1.5;
+}
+
+.logActions {
+  display: flex;
+  gap: 8px;
+  margin-left: 16px;
+}
+
+.actionBtn {
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--text-light);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.actionBtn:hover {
+  background: var(--primary-purple);
+  color: white;
+}
+
+.actionBtn.delete:hover {
+  background: #ff6b6b;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 80px 24px;
+  color: var(--text-light);
+}
+
+.emptyIllustration {
+  font-size: 4rem;
+  margin-bottom: 16px;
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+.editCard {
+  width: 100%;
+  max-width: 450px;
+  padding: 32px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inputGroup label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.inputGroup input,
+.inputGroup textarea {
+  padding: 12px;
+  border-radius: 12px;
+  border: 2px solid #f0f0f0;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.inputGroup textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+}
+

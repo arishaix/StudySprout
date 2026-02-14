@@ -3,70 +3,168 @@
   flex-direction: column;
   gap: 1.5rem;
   padding: 0.5rem;
+  position: relative;
 }
 
-.section {
+.incrementalGrid {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
 }
 
-.label {
+.activityCard {
+  background: var(--bg-cream);
+  border: 1.5px solid rgba(167, 139, 250, 0.15);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.activityCard.active {
+  border-color: var(--primary-purple);
+  border-width: 2px;
+  box-shadow: 0 4px 15px rgba(167, 139, 250, 0.15);
+}
+
+.cardMain {
+  padding: 1.25rem;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  opacity: 0.8;
-  font-size: 0.9rem;
+  justify-content: space-between;
 }
 
-.activityGrid, .presetGrid {
+.cardHeader {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
 }
 
-.activityChip, .presetChip {
-  padding: 0.5rem 1rem;
-  border-radius: 12px;
-  border: 1px solid var(--glass-border);
-  background: var(--glass-bg);
-  color: var(--text-primary);
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.cardTitle {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-main);
 }
 
-.activityChip:hover, .presetChip:hover {
-  background: var(--glass-border);
-  transform: translateY(-1px);
+.activeIcon {
+  color: var(--primary-purple);
+  margin-left: auto;
 }
 
-.activityChip.active, .presetChip.active {
+.cardControls {
+  padding: 0 1.25rem 1.25rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: rgba(167, 139, 250, 0.03);
+  animation: slideDown 0.3s ease-out;
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+:global(.dark) .counter {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.countBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
   background: var(--primary-purple);
   color: white;
-  border-color: var(--primary-purple);
-  box-shadow: 0 4px 12px rgba(167, 139, 250, 0.3);
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s;
 }
 
-.textarea {
-  width: 100%;
-  min-height: 100px;
-  padding: 1rem;
-  border-radius: 16px;
-  border: 1px solid var(--glass-border);
-  background: var(--glass-bg);
-  color: var(--text-primary);
+.countBtn:active {
+  transform: scale(0.9);
+}
+
+.dualInput {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: white;
+  padding: 0.4rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(167, 139, 250, 0.2);
+}
+
+:global(.dark) .dualInput {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.fieldGroup {
+  display: flex;
+  align-items: baseline;
+  gap: 0.2rem;
+}
+
+.countInput {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-main);
+  width: 45px;
+  text-align: right;
+  border: none;
+  background: transparent;
+  outline: none;
+  padding: 0;
   font-family: inherit;
-  resize: vertical;
+}
+
+/* Remove number arrows */
+.countInput::-webkit-inner-spin-button,
+.countInput::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.unitLabel {
+  font-weight: 600;
   font-size: 0.9rem;
+  color: var(--text-light);
+  opacity: 0.8;
+}
+
+.quickNote {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  background: white;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  outline: none;
   transition: border-color 0.2s;
 }
 
-.textarea:focus {
-  outline: none;
+:global(.dark) .quickNote {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.quickNote:focus {
   border-color: var(--primary-purple);
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .twitterToggle {
@@ -92,13 +190,13 @@
 .toggleTitle {
   font-weight: 600;
   font-size: 0.9rem;
-  color: var(--text-primary);
+  color: var(--text-main);
   margin-bottom: 0.1rem;
 }
 
 .toggleDesc {
   font-size: 0.75rem;
-  color: var(--text-secondary);
+  color: var(--text-light);
 }
 
 .toggleSwitch {
@@ -215,7 +313,7 @@
 .aiText {
   font-size: 0.95rem;
   line-height: 1.5;
-  color: var(--text-primary);
+  color: var(--text-main);
   white-space: pre-wrap;
 }
 
@@ -238,4 +336,58 @@
 
 .logBtn {
   flex: 2;
+}
+
+.notification {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--primary-purple);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  color: var(--primary-purple);
+  font-weight: 600;
+  font-size: 0.85rem;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+/* Bundle Specific Styles */
+.bundleStatus {
+  background: rgba(167, 139, 250, 0.1);
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary-purple);
+  text-align: center;
+}
+
+/* Legacy Bundle Styles Removed */
+
+.alreadyLogged {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1rem 0;
+  gap: 0.25rem;
+}
+
+.alreadyLogged h3 {
+  margin: 0;
+  color: var(--text-main);
+}
+
+.alreadyLogged p {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  line-height: 1.5;
 }

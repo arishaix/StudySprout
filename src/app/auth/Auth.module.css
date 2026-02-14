@@ -120,3 +120,54 @@
   flex: 1;
   border-bottom: 1px solid #eee;
 }
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.inputWrapper .input {
+  width: 100%;
+}
+
+.errorMessage {
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: left;
+  padding-left: 4px;
+}
+
+.inlineLoader {
+  position: absolute;
+  right: 12px;
+  font-size: 0.75rem;
+  color: var(--text-light);
+  font-style: italic;
+}
+
+.inputError {
+  border-color: #ff6b6b !important;
+  background: rgba(255, 107, 107, 0.05) !important;
+}
+
+.inputSuccess {
+  border-color: #51cf66 !important;
+  background: rgba(81, 207, 102, 0.05) !important;
+}
+
+.inputHintError {
+  color: #ff6b6b;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  margin-left: 4px;
+}
+
+.inputHintSuccess {
+  color: #51cf66;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  margin-left: 4px;
+}

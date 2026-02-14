@@ -5,6 +5,8 @@ import "./globals.css";
 
 import { StudyProvider } from "./lib/StudyContext";
 import { ThemeProvider } from "./lib/ThemeContext";
+import LoaderWrapper from "./components/LoaderWrapper";
+import NotificationToast from "./components/NotificationToast";
 
 const nunito = Nunito({ 
   subsets: ["latin"],
@@ -15,6 +17,9 @@ const nunito = Nunito({
 export const metadata: Metadata = {
   title: "StudySprout",
   description: "Grow your consistency!",
+  icons: {
+    icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍄</text></svg>',
+  },
 };
 
 export default function RootLayout({
@@ -27,8 +32,11 @@ export default function RootLayout({
       <body className={nunito.className}>
         <ThemeProvider>
           <StudyProvider>
-            <Navbar />
-            {children}
+            <LoaderWrapper>
+              <Navbar />
+              <NotificationToast />
+              {children}
+            </LoaderWrapper>
           </StudyProvider>
         </ThemeProvider>
       </body>

@@ -5,9 +5,11 @@ import Button from "./components/ui/Button";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useStudy } from "./lib/StudyContext";
 import MascotContainer from "./components/MascotContainer";
 
 export default function Home() {
+  const { user } = useStudy();
   return (
     <main className={styles.main}>
       <motion.div 
@@ -26,18 +28,28 @@ export default function Home() {
         
         <p className={styles.subtitle}>
           StudySprout helps you build habits with friends. 
-          Plant seeds, track streaks, and watch them bloom!
+          Plant seeds, track streaks, and watch them bloom! 🍄
         </p>
 
         <div className={styles.ctaGroup}>
-          <Link href="/auth/signup">
-            <Button>
-              Start Growing <ArrowRight size={20} />
-            </Button>
-          </Link>
-          <Link href="/auth/login">
-            <Button variant="ghost">Sign In</Button>
-          </Link>
+          {user ? (
+            <Link href="/dashboard">
+              <Button>
+                Go to Dashboard <ArrowRight size={20} />
+              </Button>
+            </Link>
+          ) : (
+            <>
+              <Link href="/auth/signup">
+                <Button>
+                  Start Growing <ArrowRight size={20} />
+                </Button>
+              </Link>
+              <Link href="/auth/login">
+                <Button variant="ghost">Sign In</Button>
+              </Link>
+            </>
+          )}
         </div>
       </motion.div>
     </main>

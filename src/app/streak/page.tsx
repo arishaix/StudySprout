@@ -5,65 +5,113 @@ import styles from "./page.module.css";
 import Button from "../components/ui/Button";
 import { ArrowLeft, ArrowRight, Map } from "lucide-react";
 import { motion } from "framer-motion";
-
-// Mock Data Generation
-const generateMonthData = (month: number, year: number) => {
-  const lastDay = new Date(year, month + 1, 0).getDate();
-  const today = new Date();
-  const todayFormatted = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  
-  return Array.from({ length: lastDay }, (_, i) => {
-    const date = new Date(year, month, i + 1);
-    const dayOfWeek = date.getDay(); // 0 is Sunday
-    const isToday = date.getTime() === todayFormatted.getTime();
-    const isPast = date < todayFormatted;
-    
-    let status: "locked" | "completed" | "missed" = "locked";
-    if (isPast) {
-       status = Math.random() > 0.2 ? "completed" : "missed";
-    } else if (isToday) {
-       status = "completed"; // Demonstration
-    }
-    
-    return { day: i + 1, status, dayOfWeek, isToday };
-  });
-};
+import { useStudy } from "../lib/StudyContext";
 
 export default function StreakPage() {
-  const [monthIndex, setMonthIndex] = useState(0); // 0 = Jan, 1 = Feb...
-  const year = 2026;
-  const currentMonthData = generateMonthData(monthIndex, year);
+  // Use Logs from Context (REAL DATA)
+  const { logs, manualStreak } = useStudy();
   
-  const months = ["January", "February", "March", "April", "May", "June"];
-  const currentMonthName = months[monthIndex];
+  const [monthIndex, setMonthIndex] = useState(new Date().getMonth()); // Default to current month
+  const [year, setYear] = useState(new Date().getFullYear()); // Default to current year
+  
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  
+  // Real Data Generation
+  const generateMonthData = (month: number, year: number) => {
+    const lastDay = new Date(year, month + 1, 0).getDate();
+    const firstDayObj = new Date(year, month, 1);
+    const today = new Date();
+    const todayFormatted = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
-  const getEmoji = (data: any, globalIndex: number) => {
-    if (data.status === "missed") return "🍂";
-    if (data.status === "locked") return "🕳️";
-    
-    // Mon (1) to Wed (3)
-    if (data.dayOfWeek >= 1 && data.dayOfWeek <= 3) return "🌰";
-    // Thu (4) to Sat (6)
-    if (data.dayOfWeek >= 4 && data.dayOfWeek <= 6) return "🌱";
-    // Sun (0)
-    if (data.dayOfWeek === 0) {
-      const flowers = ["🌷", "🌸", "🌻", "🌹", "🌺", "🌼"];
-      const sundayIndex = Math.floor(globalIndex / 7);
-      return flowers[sundayIndex % flowers.length];
+    // Padding (Sunday Start)
+    const paddingCount = firstDayObj.getDay(); 
+
+    const days: any[] = [];
+
+    // Add Padding
+    for (let i = 0; i < paddingCount; i++) {
+      days.push({ day: null, status: "empty", dayOfWeek: -1 });
     }
-    return "🌰";
+
+    // Add Real Days
+    for (let i = 1; i <= lastDay; i++) {
+      const date = new Date(year, month, i);
+      const dayOfWeek = date.getDay(); // 0 is Sunday
+      const isToday = date.getTime() === todayFormatted.getTime();
+      const isPast = date < todayFormatted;
+      
+      // Determine Status from Real Logs
+      // 1. Format date to YYYY-MM-DD to match logs
+      // Note: logs.date is usually ISO string or YYYY-MM-DD. 
+      // Let's assume the logs from Supabase are YYYY-MM-DD or we can match day/month/year.
+      // Easiest is to check if any log matches this specific day.
+      
+      const hasLog = logs.some(log => {
+        const logDate = new Date(log.date); // Handle valid date strings
+        return logDate.getDate() === i && 
+               logDate.getMonth() === month && 
+               logDate.getFullYear() === year;
+      });
+
+      let status: "locked" | "completed" | "missed" = "locked";
+      
+      if (manualStreak !== null && isPast) {
+         // Tester Mode Override: If manual streak > 0, we can simulate patterns if needed,
+         // but user asked for REAL DB connection. Let's prioritize real logs.
+         // If they have a manual streak set, maybe show 'completed' for the last X days?
+         // Let's stick to PURE DB logs as requested.
+         status = hasLog ? "completed" : "missed";
+      } else {
+         if (isToday) {
+            status = hasLog ? "completed" : "locked"; // Today is locked until done (or pending)
+         } else if (isPast) {
+            status = hasLog ? "completed" : "missed";
+         } else {
+            status = "locked"; // Future
+         }
+      }
+      
+      // Override for "Missed" -> If user hated random missed, "locked" might be cleaner?
+      // But for a past date, "locked" implies it's not accessible. "Missed" implies you failed.
+      // Let's stick to "missed" (autumn leaf) for accuracy.
+      
+      days.push({ day: i, status, dayOfWeek, isToday });
+    }
+
+    return days;
+  };
+
+  const currentMonthData = generateMonthData(monthIndex, year);
+
+  const getEmoji = (dayOfWeek: number, dayOfMonth: number) => {
+    // dayOfWeek: 0 (Sun) - 6 (Sat)
+    
+    // Mon (1) - Wed (3) -> Seed
+    if (dayOfWeek >= 1 && dayOfWeek <= 3) return "🌱";
+    
+    // Thu (4) - Sat (6) -> Sprout
+    if (dayOfWeek >= 4 && dayOfWeek <= 6) return "🌿";
+    
+    // Sun (0) -> Flower Cycle
+    if (dayOfWeek === 0) {
+      const flowers = ["🌻", "🌷", "🌼", "🍄"];
+      const weekIndex = Math.floor((dayOfMonth - 1) / 7);
+      return flowers[weekIndex % 4];
+    }
+    
+    return "🌱";
   };
 
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
-            <div style={{ padding: "12px", background: "white", borderRadius: "50%", boxShadow: "var(--shadow-sm)" }}>
-                <Map size={32} color="var(--soft-teal)" />
-            </div>
+        <div className={styles.headerTitleRow}>
+          <div className={styles.iconWrapper}>
+              <Map size={24} color="var(--soft-teal)" />
+          </div>
+          <h1 className={styles.monthTitle}>{months[monthIndex]} {year}</h1>
         </div>
-        <h1 className={styles.monthTitle}>{months[monthIndex]} {year}</h1>
-        <p style={{ color: "var(--text-light)" }}>Your Study Journey</p>
+        <p className={styles.subtitle}>Your Study Journey</p>
       </header>
 
       <div className={styles.pathGrid}>
@@ -71,7 +119,12 @@ export default function StreakPage() {
           <div key={rowIndex} className={styles.row}>
             {currentMonthData.slice(rowIndex * 7, rowIndex * 7 + 7).map((data, index) => {
               const globalIndex = rowIndex * 7 + index;
-              const emoji = getEmoji(data, globalIndex);
+              
+              if (data.status === "empty") {
+                return <div key={`empty-${globalIndex}`} className={styles.nodeWrapper} style={{ pointerEvents: "none" }} />;
+              }
+
+              const emoji = data.status === "missed" ? "🍂" : getEmoji(data.dayOfWeek, data.day);
               
               return (
                 <motion.div 
@@ -80,6 +133,7 @@ export default function StreakPage() {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: globalIndex * 0.01 }}
+                  title={`Day ${data.day}: ${emoji}`} 
                 >
                   <motion.div 
                     className={`${styles.node} ${styles[data.status]} ${data.isToday ? styles.today : ""}`}
@@ -93,9 +147,9 @@ export default function StreakPage() {
                       ease: "easeInOut"
                     } : {}}
                   >
-                    {emoji}
+                    <span className="emoji-content">{emoji}</span>
                   </motion.div>
-                  <span className={styles.dayLabel}>Day {data.day}</span>
+                  <span className={styles.dayLabel}>{data.day}</span>
                   {data.isToday && <span className={styles.todayIndicator}>Today</span>}
                 </motion.div>
               );
@@ -106,18 +160,28 @@ export default function StreakPage() {
 
       <div className={styles.controls}>
         <Button 
-          onClick={() => setMonthIndex(prev => Math.max(0, prev - 1))} 
+          onClick={() => {
+            if (monthIndex === 0) {
+              setMonthIndex(11);
+              setYear(prev => prev - 1);
+            } else {
+              setMonthIndex(prev => prev - 1);
+            }
+          }} 
           variant="secondary"
-          disabled={monthIndex === 0}
         >
             <ArrowLeft size={20} /> Prev
         </Button>
-        <span style={{ fontWeight: 700, minWidth: "100px", textAlign: "center" }}>
-          {months[monthIndex]}
-        </span>
+        <div style={{ width: "24px" }} /> 
         <Button 
-          onClick={() => setMonthIndex(prev => Math.min(5, prev + 1))}
-          disabled={monthIndex === 5}
+          onClick={() => {
+            if (monthIndex === 11) {
+              setMonthIndex(0);
+              setYear(prev => prev + 1);
+            } else {
+              setMonthIndex(prev => prev + 1);
+            }
+          }}
         >
             Next <ArrowRight size={20} />
         </Button>

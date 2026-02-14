@@ -3,23 +3,25 @@
 import styles from "./page.module.css";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
-import { User, Award, Flame, Timer, Moon, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { motion } from "framer-motion";
 import { useStudy } from "../lib/StudyContext";
 import { useTheme } from "../lib/ThemeContext";
 
 export default function ProfilePage() {
-  const { streak, totalMinutes } = useStudy();
+  const { user, logout, badges } = useStudy();
   const { theme, toggleTheme } = useTheme();
 
-  const harvestedPlants = [
-    { id: 1, name: "First Tulip", emoji: "🌷", date: "Jan 7, 2026" },
-    { id: 2, name: "Sakura Bloom", emoji: "🌸", date: "Jan 14, 2026" },
-    { id: 3, name: "Sunny Day", emoji: "🌻", date: "Jan 21, 2026" },
-    { id: 4, name: "Royal Rose", emoji: "🌹", date: "Jan 28, 2026" },
-  ];
-
-  const totalHours = (totalMinutes / 60).toFixed(1);
+  // Helper to get emoji for flower type
+  const getFlowerEmoji = (type: string) => {
+    switch (type) {
+      case 'Sunflower': return '🌻';
+      case 'Tulip': return '🌷';
+      case 'Daffodil': return '🌼';
+      case 'Mushroom': return '🍄';
+      default: return '🍄'; // Default to Mushroom if unknown/legacy
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -29,17 +31,57 @@ export default function ProfilePage() {
         animate={{ opacity: 1, y: 0 }}
       >
         <div className={styles.avatarWrapper}>
-          👤
+          🍄
         </div>
-        <h1 className={styles.username}>Study Scholar</h1>
-        <p className={styles.bio}>Cultivating a better mind, one sprout at a time. 🌱</p>
+        <h1 className={styles.username}>{user?.user_metadata?.username || user?.user_metadata?.full_name || 'Study Scholar'}</h1>
       </motion.div>
+
+      <h2 className={styles.sectionTitle}>Harvested Flowers 🎋</h2>
+      
+      <div className={styles.badgeGrid}>
+        {badges.length === 0 ? (
+          <p style={{ gridColumn: "1/-1", textAlign: "center", color: "var(--text-light)", padding: "24px" }}>
+            No flowers harvested yet. Grow a 7-day streak to harvest! 🍄
+          </p>
+        ) : (
+          badges.map((badge, index) => (
+            <motion.div
+              key={badge.id}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 + index * 0.1 }}
+            >
+              <div className={styles.badgeCard} style={{ position: "relative" }}>
+                <div className={styles.badgeIcon}>{getFlowerEmoji(badge.flower_type)}</div>
+                <div className={styles.badgeName}>
+                  {badge.flower_type === 'Chrysanthemum' ? 'Mushroom' : badge.flower_type}
+                </div>
+                {badge.count > 1 && (
+                  <div style={{
+                    position: "absolute",
+                    top: "8px",
+                    right: "8px",
+                    background: "var(--primary-purple)",
+                    color: "white",
+                    borderRadius: "12px",
+                    padding: "2px 8px",
+                    fontSize: "0.75rem",
+                    fontWeight: 700
+                  }}>
+                    {badge.count}x
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          ))
+        )}
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        style={{ marginBottom: "24px" }}
+        transition={{ delay: 0.5 }}
+        style={{ marginTop: "32px", marginBottom: "8px" }}
       >
         <Card className={styles.statCard} style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: "16px 24px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -55,47 +97,16 @@ export default function ProfilePage() {
         </Card>
       </motion.div>
 
-      <div className={styles.statsGrid}>
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card className={styles.statCard}>
-            <div className={styles.statValue}>{streak}</div>
-            <div className={styles.statLabel}>Days Streak</div>
-          </Card>
-        </motion.div>
-        
-        <motion.div 
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card className={styles.statCard}>
-            <div className={styles.statValue}>{totalHours}h</div>
-            <div className={styles.statLabel}>Total Focus</div>
-          </Card>
-        </motion.div>
-      </div>
-
-      <h2 className={styles.sectionTitle}>Harvested Garden 🎋</h2>
-      
-      <div className={styles.badgeGrid}>
-        {harvestedPlants.map((plant, index) => (
-          <motion.div
-            key={plant.id}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 + index * 0.1 }}
-          >
-            <div className={styles.badgeCard}>
-              <div className={styles.badgeIcon}>{plant.emoji}</div>
-              <div className={styles.badgeName}>{plant.name}</div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+      <motion.div 
+        className={styles.logoutWrapper}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+      >
+        <Button variant="secondary" onClick={logout} style={{ width: "100%", marginTop: "32px", background: "rgba(255, 107, 107, 0.1)", color: "#ff6b6b", border: "1px solid rgba(255, 107, 107, 0.2)" }}>
+          Log Out
+        </Button>
+      </motion.div>
     </div>
   );
 }

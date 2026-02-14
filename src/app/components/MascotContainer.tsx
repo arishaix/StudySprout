@@ -4,9 +4,10 @@ import styles from "./MascotContainer.module.css";
 import { motion } from "framer-motion";
 
 interface MascotProps {
-  stage: "seed" | "sprout" | "flower";
+  stage: "seed" | "sprout" | "flower" | "tulip" | "daffodil" | "mushroom";
   minimal?: boolean;
   animated?: boolean;
+  hideStatus?: boolean;
 }
 
 const STAGES = {
@@ -22,15 +23,35 @@ const STAGES = {
   },
   flower: { 
     src: "/assets/mascots/flower_v1.png", 
-    text: "In full bloom!", 
-    sub: "You're amazing!" 
+    text: "Sunflower in bloom!", 
+    sub: "Week 1 Reward! 🌻",
+    style: {} 
+  },
+  tulip: { 
+    src: "/assets/mascots/tulip.jpg", 
+    text: "Tulip in bloom!", 
+    sub: "Week 2 Reward! 🌷",
+    style: { borderRadius: "20px" } // Add radius since it's a JPG card style likely
+  },
+  daffodil: { 
+    src: "/assets/mascots/daffodil.jpg", 
+    text: "Daffodil in bloom!", 
+    sub: "Week 3 Reward! 🌼",
+    style: { borderRadius: "20px" }
+  },
+  mushroom: { 
+    src: "/assets/mascots/mushroom.jpg", 
+    text: "Mushroom sprout!", 
+    sub: "Week 4 Reward! 🍄",
+    style: { borderRadius: "20px" }
   },
 };
 
 export default function MascotContainer({ 
   stage = "seed", 
   minimal = false,
-  animated = true 
+  animated = true,
+  hideStatus = false
 }: MascotProps) {
   const current = STAGES[stage];
 
@@ -53,19 +74,20 @@ export default function MascotContainer({
            } : {}}
            className={`${styles.imageWrapper} ${minimal ? styles.minimal : ""}`}
         >
-          <img 
-            src={current.src} 
-            alt={current.text}
-            style={{
-              width: minimal ? '100%' : '180px',
-              height: 'auto',
-              maxHeight: minimal ? '100%' : '180px',
-              objectFit: 'contain'
-            }}
-            className={styles.mascotImage}
-          />
+            <img 
+              src={current.src} 
+              alt={current.text}
+              style={{
+                width: minimal ? '100%' : '180px',
+                height: 'auto',
+                maxHeight: minimal ? '100%' : '180px',
+                objectFit: 'contain',
+                ...(current as any).style // Apply the filter
+              }}
+              className={styles.mascotImage}
+            />
         </motion.div>
-        {stage === "flower" && animated && (
+        {["flower", "tulip", "daffodil", "mushroom"].includes(stage) && animated && (
            <motion.div 
              className={styles.sparkle}
              animate={{ scale: [1, 1.3, 1], opacity: [0.5, 1, 0.5] }}
@@ -76,7 +98,7 @@ export default function MascotContainer({
         )}
       </div>
       
-      {!minimal && (
+      {!minimal && !hideStatus && (
         <div className={styles.status}>
           <h3>{current.text}</h3>
           <p>{current.sub}</p>

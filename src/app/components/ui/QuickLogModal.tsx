@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Sparkles, Twitter, Clock, BookOpen, MessageSquare } from "lucide-react";
+import { X, Sparkles, Twitter, Clock, BookOpen, MessageSquare, Plus } from "lucide-react";
 import Modal from "./Modal";
 import Button from "./Button";
 import styles from "./QuickLogModal.module.css";
@@ -12,118 +12,234 @@ interface QuickLogModalProps {
 }
 
 export default function QuickLogModal({ isOpen, onClose }: QuickLogModalProps) {
-  const { activities, addLog, updateTweetDraft } = useStudy();
-  const [selectedActivity, setSelectedActivity] = useState(activities[0]?.title || "");
-  const [duration, setDuration] = useState(60);
-  const [notes, setNotes] = useState("");
+  const { activities, bulkAddLogs, isTodayLogged } = useStudy();
+  const [bundle, setBundle] = useState<{ [key: string]: { h: number, m: number } }>({});
+  const [bundleNotes, setBundleNotes] = useState<{ [key: string]: string }>({});
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMsg, setNotificationMsg] = useState("");
   
   // AI Agent States
   const [isProcessing, setIsProcessing] = useState(false);
   const [aiSummary, setAiSummary] = useState("");
-  const [showTweetPreview, setShowTweetPreview] = useState(false);
-  const [step, setStep] = useState<"input" | "processing" | "review">("input");
+  const [step, setStep] = useState<"input" | "review" | "processing" | "final">("input");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const durationPresets = [25, 45, 60, 120];
+  const toggleActivity = (id: string) => {
+    setBundle(prev => {
+      const next = { ...prev };
+      if (next[id]) {
+        delete next[id];
+      } else {
+        next[id] = { h: 1, m: 0 }; // Default to 1h
+        // Show notification
+        const activity = activities.find(a => a.id === id);
+        setNotificationMsg(`Added ${activity?.title}!`);
+        setShowNotification(true);
+        setTimeout(() => setShowNotification(false), 2000);
+      }
+      return next;
+    });
+  };
+
+  const adjustTotalMinutes = (id: string, deltaMins: number) => {
+    setBundle(prev => {
+      if (!prev[id]) return prev;
+      const currentTotal = (prev[id].h * 60) + prev[id].m;
+      const nextTotal = Math.max(0, currentTotal + deltaMins);
+      return { 
+        ...prev, 
+        [id]: { 
+          h: Math.floor(nextTotal / 60), 
+          m: nextTotal % 60 
+        } 
+      };
+    });
+  };
+
+  const updateEntry = (id: string, field: "h" | "m", val: string) => {
+    // Remove non-digits
+    const clean = val.replace(/[^0-9]/g, '');
+    let num = clean === "" ? 0 : parseInt(clean);
+    
+    // Cap minutes at 59 if user types manually
+    if (field === "m" && num > 59) num = 59;
+    
+    setBundle(prev => ({
+      ...prev,
+      [id]: { ...prev[id], [field]: num }
+    }));
+  };
+
+  const updateNotes = (id: string, note: string) => {
+    setBundleNotes(prev => ({ ...prev, [id]: note }));
+  };
 
   const handleStartProcessing = () => {
+    const entryCount = Object.keys(bundle).length;
+    if (entryCount === 0) return;
+    
     setIsProcessing(true);
     setStep("processing");
     
     // Simulate AI thinking
     setTimeout(() => {
-      const timeStr = duration >= 60 ? `${(duration / 60).toFixed(1)}h` : `${duration}m`;
-      const summary = `I've analyzed your session! You spent ${timeStr} on ${selectedActivity}. 
+      const totalMins = Object.values(bundle).reduce((acc, curr) => acc + (curr.h * 60) + curr.m, 0);
+      const timeStr = totalMins >= 60 ? `${(totalMins / 60).toFixed(1)}h` : `${totalMins}m`;
+      const summary = `I've analyzed your multi-activity session! Total time: ${timeStr}. 
       
-Based on your notes: "${notes || "Focused study"}", I'll log this as a major progress milestone. 
-
-I've also prepared a tweet for you! 🚀`;
-      
+You've made progress across ${entryCount} different areas today. This variety is great for consistent growth! 🚀`;
+        
       setAiSummary(summary);
       setIsProcessing(false);
-      setStep("review");
+      setStep("final");
     }, 2000);
   };
 
-  const handleFinalLog = () => {
-    addLog(selectedActivity, duration, notes);
-    if (showTweetPreview) {
-      updateTweetDraft(generateTweet());
+  const handleFinalLog = async () => {
+    const finalEntries = Object.entries(bundle)
+      .map(([id, time]) => ({
+        activityId: id,
+        minutes: (time.h * 60) + time.m,
+        notes: bundleNotes[id] || ""
+      }))
+      .filter(entry => entry.minutes > 0);
+
+    if (finalEntries.length === 0) return;
+    
+    setIsSubmitting(true);
+    try {
+      await bulkAddLogs(finalEntries);
+      onClose();
+      // Reset state
+      setBundle({});
+      setBundleNotes({});
+      setStep("input");
+    } finally {
+      setIsSubmitting(false);
     }
-    onClose();
-    // Reset state
-    setNotes("");
-    setStep("input");
   };
 
-  const generateTweet = () => {
-    const timeStr = duration >= 60 ? `${(duration / 60).toFixed(1)}h` : `${duration}m`;
-    return `Just finished a ${timeStr} session of #${selectedActivity.replace(/\s+/g, '')}! 🚀\n\n${notes || "Making progress every day."}\n\n#StudySprout #CodingAccountability #BuildInPublic @StudySproutApp`;
-  };
+
+  if (isTodayLogged) {
+    return (
+      <Modal isOpen={isOpen} onClose={onClose} title="Daily Log Complete">
+        <div className={styles.container}>
+          <div className={styles.alreadyLogged}>
+            <div className={styles.aiIcon} style={{ fontSize: "4rem" }}>
+              🌼
+            </div>
+            <h3>You've already logged today!</h3>
+            <p>To keep your history clean, we only allow one log bundle per day. You can view or edit today's logs in your Library.</p>
+            <div className={styles.footer}>
+              <Button variant="primary" onClick={onClose} style={{ width: "100%" }}>Got it!</Button>
+            </div>
+          </div>
+        </div>
+      </Modal>
+    );
+  }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Quick Session Log">
+    <Modal isOpen={isOpen} onClose={onClose} title="Daily Progress Bundle">
       <div className={styles.container}>
+        {/* Themed Notification */}
+        <AnimatePresence>
+          {showNotification && (
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className={styles.notification}
+            >
+              <Sparkles size={14} /> {notificationMsg}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {step === "input" && (
           <>
-            {/* Activity Selection */}
-            <div className={styles.section}>
-              <label className={styles.label}>
-                <BookOpen size={16} /> What are you studying?
-              </label>
-              <div className={styles.activityGrid}>
-                {activities.map((activity) => (
-                  <button
-                    key={activity.id}
-                    className={`${styles.activityChip} ${
-                      selectedActivity === activity.title ? styles.active : ""
-                    }`}
-                    onClick={() => setSelectedActivity(activity.title)}
-                  >
-                    {activity.title}
-                  </button>
-                ))}
-              </div>
+            <div className={styles.bundleStatus}>
+              <span>{Object.keys(bundle).length} activities selected for today</span>
             </div>
 
-            {/* Duration Selection */}
-            <div className={styles.section}>
-              <label className={styles.label}>
-                <Clock size={16} /> Duration
-              </label>
-              <div className={styles.presetGrid}>
-                {durationPresets.map((preset) => (
-                  <button
-                    key={preset}
-                    className={`${styles.presetChip} ${
-                      duration === preset ? styles.active : ""
-                    }`}
-                    onClick={() => setDuration(preset)}
-                  >
-                    {preset >= 60 ? `${preset / 60}h` : `${preset}m`}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <div className={styles.incrementalGrid}>
+              {activities.map((activity) => {
+                const isActive = activity.id in bundle;
+                const time = bundle[activity.id] || { h: 0, m: 0 };
 
-            {/* Notes */}
-            <div className={styles.section}>
-              <label className={styles.label}>
-                <MessageSquare size={16} /> Session Notes
-              </label>
-              <textarea
-                className={styles.textarea}
-                placeholder="What did you achieve? (e.g., fixed a bug, learned binary search)"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-              />
+                return (
+                  <div 
+                    key={activity.id} 
+                    className={`${styles.activityCard} ${isActive ? styles.active : ""}`}
+                  >
+                    <div 
+                      className={styles.cardMain}
+                      onClick={() => toggleActivity(activity.id)}
+                    >
+                      <div className={styles.cardHeader}>
+                        <span className={styles.cardTitle}>{activity.title}</span>
+                        {isActive && <Sparkles size={14} className={styles.activeIcon} />}
+                      </div>
+                    </div>
+
+                    {isActive && (
+                      <div className={styles.cardControls}>
+                        <div className={styles.counter}>
+                          <button onClick={() => adjustTotalMinutes(activity.id, -15)} className={styles.countBtn}>-</button>
+                          
+                          <div className={styles.dualInput}>
+                            <div className={styles.fieldGroup}>
+                              <input 
+                                type="text" 
+                                inputMode="numeric"
+                                className={styles.countInput} 
+                                value={time.h === 0 ? "" : time.h.toString()} 
+                                onChange={(e) => updateEntry(activity.id, "h", e.target.value)}
+                                placeholder="0"
+                              />
+                              <span className={styles.unitLabel}>h</span>
+                            </div>
+                            
+                            <div className={styles.fieldGroup}>
+                              <input 
+                                type="text" 
+                                inputMode="numeric"
+                                className={styles.countInput} 
+                                value={time.m === 0 && time.h !== 0 ? "00" : time.m === 0 ? "" : time.m.toString()} 
+                                onChange={(e) => updateEntry(activity.id, "m", e.target.value)}
+                                placeholder="00"
+                              />
+                              <span className={styles.unitLabel}>m</span>
+                            </div>
+                          </div>
+
+                          <button onClick={() => adjustTotalMinutes(activity.id, 15)} className={styles.countBtn}>+</button>
+                        </div>
+                        <input 
+                          type="text" 
+                          placeholder="Short note..." 
+                          className={styles.quickNote}
+                          value={bundleNotes[activity.id] || ""}
+                          onChange={(e) => updateNotes(activity.id, e.target.value)}
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             <div className={styles.footer}>
               <Button variant="secondary" onClick={onClose} className={styles.cancelBtn}>
                 Cancel
               </Button>
-              <Button variant="primary" onClick={handleStartProcessing} className={styles.logBtn}>
-                <Sparkles size={18} /> Process with AI
+              <Button 
+                variant="primary" 
+                onClick={handleStartProcessing} 
+                className={styles.logBtn}
+                disabled={Object.keys(bundle).length === 0}
+              >
+                <Sparkles size={18} /> Review Bundle
               </Button>
             </div>
           </>
@@ -145,11 +261,11 @@ I've also prepared a tweet for you! 🚀`;
               <Sparkles size={48} color="var(--primary-purple)" />
             </motion.div>
             <h3>Agent is thinking...</h3>
-            <p>Analyzing your session and crafting your update.</p>
+            <p>Analyzing your daily bundle and crafting your update.</p>
           </div>
         )}
 
-        {step === "review" && (
+        {step === "final" && (
           <div className={styles.reviewState}>
             <div className={styles.aiResponse}>
               <div className={styles.aiBadge}>
@@ -158,49 +274,18 @@ I've also prepared a tweet for you! 🚀`;
               <p className={styles.aiText}>{aiSummary}</p>
             </div>
 
-            {/* Twitter Toggle */}
-            <div className={styles.twitterToggle}>
-              <div className={styles.toggleInfo}>
-                <Twitter size={18} color="#1DA1F2" />
-                <div>
-                  <p className={styles.toggleTitle}>Twitter Integration</p>
-                  <p className={styles.toggleDesc}>Prepare a tweet for this session</p>
-                </div>
-              </div>
-              <button
-                className={`${styles.toggleSwitch} ${showTweetPreview ? styles.on : ""}`}
-                onClick={() => setShowTweetPreview(!showTweetPreview)}
-              >
-                <div className={styles.switchHandle} />
-              </button>
-            </div>
-
-            {/* Tweet Preview Area */}
-            <AnimatePresence>
-              {showTweetPreview && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className={styles.tweetPreviewWrapper}
-                >
-                  <div className={styles.tweetPreview}>
-                    <div className={styles.tweetHeader}>
-                      <Twitter size={14} color="#1DA1F2" />
-                      <span>X / Twitter Preview</span>
-                    </div>
-                    <p className={styles.tweetText}>{generateTweet()}</p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
 
             <div className={styles.footer}>
               <Button variant="secondary" onClick={() => setStep("input")} className={styles.cancelBtn}>
                 Edit Details
               </Button>
-              <Button variant="primary" onClick={handleFinalLog} className={styles.logBtn}>
-                Log & Share
+              <Button 
+                variant="primary" 
+                onClick={handleFinalLog} 
+                className={styles.logBtn}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Logging..." : "Log & Finalize"}
               </Button>
             </div>
           </div>

@@ -2,28 +2,34 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Flame, Clock, TrendingUp, Plus, History, Pencil, Trash2, Sparkles, Twitter } from "lucide-react";
+import { Flame, Clock, TrendingUp, Plus, History, Pencil, Trash2, Sparkles, Twitter, Feather } from "lucide-react";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import MascotContainer from "../components/MascotContainer";
 import QuickLogModal from "../components/ui/QuickLogModal";
-import SocialDraftModal from "../components/ui/SocialDraftModal";
+import GhostwriterModal from "../components/ui/GhostwriterModal";
 import AddActivityModal from "../components/ui/AddActivityModal";
 import { useStudy } from "../lib/StudyContext";
+import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
 
 export default function Dashboard() {
+  const router = useRouter();
   const { 
-    streak, totalMinutes, plantStage, activities, logs, lastTweetDraft,
-    addActivity, deleteActivity, updateActivity, updateTweetDraft,
-    setManualStreak
+    user, streak, totalMinutes, plantStage, activities, logs, lastTweetDraft, isTodayLogged,
+    addActivity, deleteActivity, updateActivity, updateTweetDraft, harvestFlower,
+    manualStreak, setManualStreak, isHarvesting, isAdmin
   } = useStudy();
   
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
+  const [isGhostwriterModalOpen, setIsGhostwriterModalOpen] = useState(false);
   const [editingActivity, setEditingActivity] = useState<{id: string, title: string} | null>(null);
 
+  if (!user) {
+    return null;
+  }
+  
   // Get yesterday's date string
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
@@ -45,25 +51,54 @@ export default function Dashboard() {
   return (
     <main className={styles.container}>
       <header className={styles.header}>
-        <div className={styles.headerContent}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", gap: "20px", flexWrap: "wrap" }}>
           <div>
-            <h1 className={styles.greeting}>Welcome Back!</h1>
-            <p className={styles.subtitle}>Your journey continues.</p>
+            <h1 className={styles.greeting}>
+              Welcome, {user.user_metadata?.username || user.user_metadata?.full_name || 'Scholar'}! 🍄
+            </h1>
           </div>
           
-          <div className={styles.devControl}>
-            <span className={styles.devLabel}>Mascot Tester: </span>
-            <input 
-              type="range" 
-              min="0" 
-              max="10" 
-              value={streak} 
-              onChange={(e) => setManualStreak(parseInt(e.target.value))}
-              className={styles.devSlider}
-            />
-            <span className={styles.devValue}>{streak}d</span>
-            <button className={styles.devReset} onClick={() => setManualStreak(null)}>Reset</button>
-          </div>
+          {/* Mascot Tester (Admin Only) */}
+          {isAdmin && (
+            <div style={{ 
+              display: "flex", 
+              alignItems: "center", 
+              gap: "10px", 
+              background: "var(--glass-bg)", 
+              padding: "8px 16px", 
+              borderRadius: "12px", 
+              border: "1px solid var(--primary-purple)",
+              backdropFilter: "blur(4px)"
+            }}>
+              <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "var(--text-light)", textTransform: "uppercase" }}>Admin Tools:</span>
+              <input 
+                type="range" 
+                min="0" 
+                max="30" 
+                value={manualStreak ?? streak} 
+                onChange={(e) => setManualStreak(parseInt(e.target.value))}
+                style={{ accentColor: "var(--primary-purple)", width: "100px", cursor: "pointer" }}
+              />
+              <span style={{ fontWeight: 800, color: "var(--primary-purple)", fontSize: "0.9rem" }}>{manualStreak ?? streak}</span>
+              {manualStreak !== null && (
+                <button 
+                  onClick={() => setManualStreak(null)}
+                  style={{ 
+                    background: "none", 
+                    border: "none", 
+                    color: "#ff6b6b", 
+                    cursor: "pointer", 
+                    fontSize: "0.6rem", 
+                    fontWeight: 800,
+                    padding: "4px 8px",
+                    borderRadius: "6px"
+                  }}
+                >
+                  RESET
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </header>
 
@@ -87,19 +122,43 @@ export default function Dashboard() {
 
       <section className={styles.heroGrid}>
         <Card className={styles.mascotHeroCard}>
-          <MascotContainer stage={plantStage} />
+          <MascotContainer stage={plantStage} hideStatus={plantStage === 'seed' || plantStage === 'sprout'} />
+          
+          {plantStage !== 'seed' && plantStage !== 'sprout' && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{ width: "100%", display: "flex", justifyContent: "center" }}
+            >
+              <Button 
+                variant="primary" 
+                onClick={() => harvestFlower()}
+                disabled={isHarvesting}
+                style={{ 
+                  padding: "12px 24px",
+                  fontSize: "1rem",
+                  width: "220px",
+                  fontWeight: 800,
+                  whiteSpace: "nowrap",
+                  opacity: isHarvesting ? 0.7 : 1
+                }}
+              >
+                {isHarvesting ? "Harvesting..." : `Harvest ${plantStage.charAt(0).toUpperCase() + plantStage.slice(1)}`}
+              </Button>
+            </motion.div>
+          )}
         </Card>
 
         <div className={styles.heroActions}>
           <Card className={styles.actionCard} onClick={() => setIsLogModalOpen(true)}>
-            <div className={styles.actionIcon}><Plus size={24} /></div>
+            <div className={`${styles.actionIcon} ${styles.logIcon}`}><Sparkles size={24} /></div>
             <div className={styles.actionText}>
-              <h3>Quick Log</h3>
-              <p>Grow your tech stacks</p>
+              <h3>{isTodayLogged ? "Daily Log Complete" : "Daily Log"}</h3>
+              <p>{isTodayLogged ? "View/Edit in Library" : "Update your progress"}</p>
             </div>
           </Card>
 
-          <Card className={styles.actionCard} onClick={() => {}}>
+          <Card className={styles.actionCard} onClick={() => router.push('/library')}>
             <div className={`${styles.actionIcon} ${styles.libraryIcon}`}><History size={24} /></div>
             <div className={styles.actionText}>
               <h3>My Library</h3>
@@ -107,11 +166,11 @@ export default function Dashboard() {
             </div>
           </Card>
 
-          <Card className={styles.actionCard} onClick={() => setIsSocialModalOpen(true)}>
-            <div className={`${styles.actionIcon} ${styles.twitterIcon}`}><Twitter size={24} /></div>
+          <Card className={styles.actionCard} onClick={() => setIsGhostwriterModalOpen(true)}>
+            <div className={`${styles.actionIcon} ${styles.twitterIcon}`}><Feather size={24} /></div>
             <div className={styles.actionText}>
-              <h3>Social Drafts</h3>
-              <p>{lastTweetDraft ? "You have a new draft!" : "No recent logs to share"}</p>
+              <h3>Ghostwriter</h3>
+              <p>Request an X draft</p>
             </div>
           </Card>
         </div>
@@ -160,9 +219,6 @@ export default function Dashboard() {
                   <Sparkles size={24} className={styles.aiIcon} />
                 </div>
                 <h3 className={styles.potTitle}>{activity.title}</h3>
-                <div className={styles.potStats}>
-                  {(activity.totalMinutes / 60).toFixed(1)}h total
-                </div>
               </Card>
             </motion.div>
           ))}
@@ -170,7 +226,7 @@ export default function Dashboard() {
       </section>
 
       <QuickLogModal isOpen={isLogModalOpen} onClose={() => setIsLogModalOpen(false)} />
-      <SocialDraftModal isOpen={isSocialModalOpen} onClose={() => setIsSocialModalOpen(false)} />
+      <GhostwriterModal isOpen={isGhostwriterModalOpen} onClose={() => setIsGhostwriterModalOpen(false)} />
       <AddActivityModal
         isOpen={isAddModalOpen}
         onClose={() => {
