@@ -10,7 +10,7 @@ The core idea is simple:
 Learning is not hard. Staying consistent is.
 
 StudySprout transforms study habits into a shared growth experience where users track streaks, earn botanical badges, and stay accountable through a real-time friend system.
-The most experimental feature is Bloom Ghostwriter 🌸 — my first custom AI agent built using the OpenAI SDK. It analyzes user study logs and drafts personalized social media posts for sharing progress on X.
+The most experimental feature is Bloom Ghostwriter ; my first custom AI agent built using the OpenAI SDK. It analyzes user study logs and drafts personalized social media posts for sharing progress on X.
 This project is my exploration into building product-focused AI systems, not just calling APIs.
 
 Why I Built This
